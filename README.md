@@ -85,7 +85,7 @@ Docker uses a **client-server model**:
 | **Best For**         | Microservices, DevOps, CI/CD, cloud apps         | Monolithic apps, legacy systems          |
 | **Example**          | Run 100s of containers on one machine            | Run a few VMs due to heavy usage         |
 
-📌 Simple Analogy:  
+Simple Analogy:  
 - **VM = Full House** (with kitchen, bedroom, bathroom each time)  
 - **Docker = Flat in an Apartment** (shares infrastructure, but still isolated)
 
@@ -103,14 +103,15 @@ Docker uses a **client-server model**:
 ---
 
 ##  1. Docker Setup & Info
-```bash
+
+```dockerfile
 docker --version            # Check Docker version
 docker info                 # Show system-wide info
 docker help                 # Show help for Docker
 ```
 ## 2. Images
 
-```bash
+```dockerfile
 docker images               # List all images
 docker pull <image>         # Download image (e.g. docker pull ubuntu)
 docker rmi <image_id>       # Remove image
@@ -120,7 +121,7 @@ docker tag <img> <repo:tag> # Tag an image
 
 ## 3. Containers
 
-```bash
+```dockerfile
 docker ps                   # List running containers
 docker ps -a                # List all containers
 docker run <image>          # Run container
@@ -129,4 +130,97 @@ docker stop <id>            # Stop container
 docker start <id>           # Start stopped container
 docker restart <id>         # Restart container
 docker rm <id>              # Remove container
+```
+
+# Docker Volumes & Networks – Commands Reference
+
+# DOCKER VOLUMES
+
+```dockerfile
+docker volume ls               # List all volumes
+docker volume create myvol     # Create a named volume
+docker volume inspect myvol    # Inspect volume details
+docker run -v myvol:/data ubuntu           # Run container with volume
+docker run -v $(pwd):/app ubuntu           # Run container with host directory bind mount
+docker volume rm myvol        # Remove a volume
+docker volume prune            # Remove all unused volumes
+```
+
+# DOCKER NETWORKS
+
+```dockerfile
+docker network ls              # List all networks
+docker network create mynet    # Create a network
+docker network create --driver bridge mybridge   # Create a bridge network
+docker network create --driver overlay myoverlay # Create an overlay network
+docker network inspect mynet   # Inspect network details
+docker run -d --name c1 --network mynet nginx   # Run container in a network
+docker run -d --name c2 --network mynet alpine ping c1  # Run another container and ping first container
+docker network connect mynet c3      # Connect container c3 to network
+docker network disconnect mynet c3   # Disconnect container c3 from network
+docker network rm mynet              # Remove a network
+docker network prune                  # Remove all unused networks
+```
+
+# DOCKER FILE
+
+Dockerfile is a **text file** that contains instructions to **build a Docker image**.  
+It automates creating images with your app and its dependencies, ensuring **consistency and portability**.
+
+---
+
+# 1. Basic Rules for Writing Dockerfile
+
+1. **Use valid instructions**: `FROM`, `RUN`, `CMD`, `LABEL`, `EXPOSE`, `ENV`, `ADD`, `COPY`, `ENTRYPOINT`, `WORKDIR`
+2. **Case-insensitive**: Instructions are not case-sensitive but uppercase is convention.
+3. **One instruction per line**: Each line creates a layer.
+4. **Comments**: Use `#` for comments.
+5. **FROM required**: Every Dockerfile must start with a base image (or `scratch`).
+6. **Minimize layers**: Combine commands with `&&`.
+7. **Keep it readable**: Meaningful names, organized structure.
+
+---
+
+# 2. Common Instructions
+
+| Instruction | Purpose |
+|-------------|---------|
+| `FROM <image>` | Base image |
+| `RUN <command>` | Run command during build |
+| `CMD ["executable","param"]` | Default command for container |
+| `ENTRYPOINT ["executable"]` | Entrypoint, less overrideable |
+| `COPY <src> <dest>` | Copy files from host to image |
+| `ADD <src> <dest>` | Like COPY but supports URLs and tar files |
+| `WORKDIR <path>` | Set working directory |
+| `ENV <key>=<value>` | Environment variable |
+| `EXPOSE <port>` | Declare port to expose |
+| `LABEL <key>=<value>` | Metadata for image |
+
+---
+
+# 3. Simple Dockerfile Example
+
+**Scenario:** Python Flask app
+
+```dockerfile
+# Step 1: Base image
+FROM python:3.11
+
+# Step 2: Set working directory
+WORKDIR /app
+
+# Step 3: Copy dependency file
+COPY requirements.txt .
+
+# Step 4: Install dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Step 5: Copy app code
+COPY . .
+
+# Step 6: Expose port
+EXPOSE 5000
+
+# Step 7: Default command
+CMD ["python", "app.py"]
 ```
