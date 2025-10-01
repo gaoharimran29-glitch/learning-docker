@@ -1,3 +1,19 @@
+# Table of Contents
+
+- [Docker Basics Cheat Sheet](#docker-basics-cheat-sheet)
+- [What is Docker?](#what-is-docker)
+- [Why is Docker Needed?](#why-is-docker-needed)
+- [Who Owns Docker?](#who-owns-docker)
+- [Docker Architecture](#docker-architecture)
+- [Docker vs Virtual Machines (VMs)](#docker-vs-virtual-machines-vms)
+- [Summary](#summary)
+- [Docker Volumes & Networks – Commands Reference](#docker-volumes--networks--commands-reference)
+- [DOCKER FILE](#docker-file)
+- [1. Basic Rules for Writing Dockerfile](#1-basic-rules-for-writing-dockerfile)
+- [2. Common Instructions](#2-common-instructions)
+- [3. Simple Dockerfile Example](#3-simple-dockerfile-example)
+- [Docker Compose Notes](#docker-compose-notes)
+
 # Docker Basics Cheat Sheet
 
 A quick reference guide for essential Docker commands.  
@@ -130,6 +146,8 @@ docker stop <id>            # Stop container
 docker start <id>           # Start stopped container
 docker restart <id>         # Restart container
 docker rm <id>              # Remove container
+docker logs <containerid>   # To see all the logs of containers
+docker logs <containerid>   # To see the logs continuosly at runtime
 ```
 
 # Docker Volumes & Networks – Commands Reference
@@ -224,3 +242,156 @@ EXPOSE 5000
 # Step 7: Default command
 CMD ["python", "app.py"]
 ```
+
+# Docker Compose Notes
+
+## What is Docker Compose?
+Docker Compose is a tool to **define and run multi-container Docker applications**.  
+Instead of starting each container manually with long `docker run` commands, you define everything in a **YAML file** (`docker-compose.yml`) and run with a single command.
+
+---
+
+## Why Use Docker Compose?
+- Start/stop multiple containers with **one command**.
+- Easy to configure **networking** between containers.
+- Manage **volumes** and persistent data.
+- Run containers in **different environments** (dev, test, prod).
+- Makes your environment **reproducible**.
+
+---
+
+## Does Docker Compose Replace Dockerfile?
+❌ **No.**  
+- **Dockerfile** → Defines **how to build an image**.  
+- **Docker Compose** → Defines **how to run one or more containers** from those images.  
+
+You often use **both together**:  
+- First create a `Dockerfile` to define your app.  
+- Then use `docker-compose.yml` to run it (with databases, caching, etc.).
+
+---
+
+## 📌 Logic Behind Writing docker-compose.yml
+
+A `docker-compose.yml` file has three main parts:
+
+1. **Version**  
+   - Specifies which Compose file format you are using.  
+   - Example: `version: '3.8'`
+
+2. **Services**  
+   - Each service = one container.  
+   - Define its image, command, ports, volumes, environment, dependencies, etc.  
+   - Example: `web`, `db`, `redis`.
+
+3. **Other Configurations**  
+   - **Volumes** → Persist data.  
+   - **Networks** → Allow services to communicate.  
+   - **Depends_on** → Define startup order.  
+
+👉 **Example (Single Service)**  
+```yaml
+version: '3.8'
+services:
+  web:
+    image: python:3.9
+    command: python -m http.server 8000
+    ports:
+      - "8000:8000"
+```
+
+## Structure of docker-compose.yml
+
+```yaml
+version: '3.8'       # Compose file version
+services:            # Define your services (containers)
+
+  web:               # Service name
+    image: python:3.9         # Image to use
+    command: python -m http.server 8000  # Command to run inside container
+    ports:
+      - "8000:8000"           # Host:Container port mapping
+    volumes:
+      - .:/app                # (Optional) Mount current folder to container
+    environment:
+      - DEBUG=true            # (Optional) Env variables
+
+  db:                # Another service (example: MySQL database)
+    image: mysql:5.7
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=mydb
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=pass
+    ports:
+      - "3306:3306"
+```
+## Basic Example
+```yaml
+version: '3.8'
+services:
+  web:
+    image: python:3.9
+    command: python -m http.server 8000
+    ports:
+      - "8000:8000"
+```
+
+## Multi-service example
+```yaml
+version: '3.8'
+services:
+
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+
+  db:
+    image: mysql:5.7
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=mydb
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=pass
+    ports:
+      - "3306:3306"
+```
+
+## File Naming
+| File Name | Description |
+|-----------|-------------|
+| `docker-compose.yml` | Default name for Docker Compose configuration. Compose automatically looks for this file if no file is specified. |
+| `docker-compose.override.yml` | Optional file to override settings from the main `docker-compose.yml`. |
+| Custom names | You can use any custom file name with `-f <filename>` option: `docker-compose -f custom.yml up`. |
+
+---
+
+## Important Commands
+
+| Command | Description | Example |
+|---------|------------|---------|
+| `docker-compose up` | Starts all services defined in the compose file | `docker-compose up` |
+| `docker-compose up -d` | Starts services in detached mode (background) | `docker-compose up -d` |
+| `docker-compose down` | Stops and removes all containers, networks, and volumes created by `up` | `docker-compose down` |
+| `docker-compose stop` | Stops running containers without removing them | `docker-compose stop` |
+| `docker-compose start` | Starts previously stopped containers | `docker-compose start` |
+| `docker-compose restart` | Restarts services | `docker-compose restart` |
+| `docker-compose build` | Builds or rebuilds services | `docker-compose build` |
+| `docker-compose logs` | View output logs from services | `docker-compose logs` |
+| `docker-compose ps` | Lists running containers | `docker-compose ps` |
+| `docker-compose exec` | Execute a command in a running container | `docker-compose exec web bash` |
+| `docker-compose pull` | Pull images defined in compose file | `docker-compose pull` |
+
+---
+
+## Advantages of Docker Compose
+
+- **Multi-container orchestration**: Easily run multiple services together.  
+- **Simplified configuration**: Use one YAML file instead of multiple `docker run` commands.  
+- **Environment management**: Supports variables and different environments using `.env` files.  
+- **Portability**: Share the compose file, and anyone can run the same environment.  
+- **Scalability**: Easily scale services using `docker-compose up --scale <service>=<num>`.  
+- **Consistent workflow**: Same commands work in development, testing, and production.  
