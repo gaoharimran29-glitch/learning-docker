@@ -5,6 +5,8 @@
 - [Task 2: Nginx Web Server](#task-2-nginx-web-server)
 - [Task 3: Python Simple HTTP Server](#task-3-python-simple-http-server)
 - [Task 4: MySQL Database with Volumes](#task-4-mysql-database-with-volumes)
+- [Task5: Running python and MySQL together]
+(#task-5:-running-python-and-mysql-together
 
 ---
 
@@ -136,3 +138,46 @@ docker exec -it my_mysql mysql -u root -p
 Password = `rootpassword`
 
 ---
+## Task5: Running python and MySQL together
+
+```docker
+version: '3.8'
+
+services:
+  myphonebook:
+    build: ./        
+    container_name: myphonebook
+    networks:
+      - my-net
+    depends_on:
+      mydb:
+        condition: service_healthy
+
+  mydb:
+    image: mysql:9.4
+    restart: always
+    container_name: mydbsql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: phonebook
+    networks:
+      - my-net
+    ports:
+      - "3306:3306"
+    volumes:
+      - db-data:/var/lib/mysql
+    healthcheck:                      
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+volumes:
+  db-data:
+
+networks:
+  my-net:
+```
+## Explanation:
+- Used heathcheck so that when MySQL is ready for connection then python will try to make connection to not get an error.
