@@ -5,8 +5,7 @@
 - [Task 2: Nginx Web Server](#task-2-nginx-web-server)
 - [Task 3: Python Simple HTTP Server](#task-3-python-simple-http-server)
 - [Task 4: MySQL Database with Volumes](#task-4-mysql-database-with-volumes)
-- [Task5: Running python and MySQL together]
-(#task-5:-running-python-and-mysql-together
+- [Task5: Running python and MySQL together(#task-5:-running-python-and-mysql-together
 
 ---
 
