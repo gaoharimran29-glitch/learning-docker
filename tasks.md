@@ -5,8 +5,7 @@
 - [Task 2: Nginx Web Server](#task-2-nginx-web-server)
 - [Task 3: Python Simple HTTP Server](#task-3-python-simple-http-server)
 - [Task 4: MySQL Database with Volumes](#task-4-mysql-database-with-volumes)
-- [Task 5: Running Python and MySQL Together](#task-5-running-python-and-mysql-together)
-
+- - [Task 5: Running Python and MySQL Together](#task-5-running-python-and-mysql-together)
 ---
 
 ## Task 1: Hello World with Docker Compose
