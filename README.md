@@ -64,6 +64,8 @@ Solutions with Docker:
 
 # Docker Architecture
 
+![Docker-Architecture](/dockervsvm.png)
+
 Docker uses a **client-server model**:
 
 1. **Docker Client (CLI)**  
